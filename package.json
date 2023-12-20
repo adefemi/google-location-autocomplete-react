@@ -1,11 +1,14 @@
 {
   "name": "google-location-autocomplete-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/GoogleLocationAutocomplete.js",
   "types": "dist/GoogleLocationAutocomplete.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adefemi/google-location-autocomplete-react"
+  },
   "dependencies": {
-    "@types/googlemaps": "^3.43.3",
-    "typescript": "^4.9.5"
+    "@types/googlemaps": "^3.43.3"
   },
   "scripts": {
     "build": "tsc"

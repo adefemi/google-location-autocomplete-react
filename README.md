@@ -2,6 +2,12 @@
 
 `google-location-autocomplete-react` is a simple and reusable React component that leverages the Google Maps Places Autocomplete API. It allows for easy integration of Google's location autocomplete functionality into your React applications.
 
+## Repository
+
+The source code is available at [GitHub](https://github.com/adefemi/google-location-autocomplete-react).
+
+Feel free to dive in, open issues, and submit pull requests. Contributions are welcome!
+
 ## Features
 
 - Easy integration with React projects.

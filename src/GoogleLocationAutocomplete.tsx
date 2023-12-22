@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 
-interface GoogleAutocompleteProps {
+interface GoogleAutocompleteProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   apiKey: string;
-  className?: string;
 }
 
 declare global {
@@ -13,7 +13,7 @@ declare global {
 
 const GoogleLocationAutocomplete: React.FC<GoogleAutocompleteProps> = ({
   apiKey,
-  className,
+  ...props
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -45,7 +45,7 @@ const GoogleLocationAutocomplete: React.FC<GoogleAutocompleteProps> = ({
     };
   }, [apiKey]);
 
-  return <input ref={inputRef} className={className} type="text" />;
+  return <input ref={inputRef} type="text" {...props} />;
 };
 
 export default GoogleLocationAutocomplete;

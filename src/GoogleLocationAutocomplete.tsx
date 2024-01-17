@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 interface GoogleAutocompleteProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -19,43 +19,40 @@ const GoogleLocationAutocomplete: React.FC<GoogleAutocompleteProps> = ({
   ...props
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  const loadScript = () => {
-    const url = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    if (!document.querySelector(`script[src="${url}"]`)) {
-      const script = document.createElement("script");
-      script.src = url;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-      script.onload = () => initializeAutocomplete();
-    }
-  };
-
-  const initializeAutocomplete = () => {
-    if (inputRef.current && window.google && !autocompleteRef.current) {
-      autocompleteRef.current = new window.google.maps.places.Autocomplete(
+  const initAutocomplete = () => {
+    if (inputRef.current && window.google) {
+      const autocomplete = new window.google.maps.places.Autocomplete(
         inputRef.current
       );
-      autocompleteRef.current?.addListener("place_changed", () => {
-        const place = autocompleteRef.current?.getPlace();
-        if (onPlaceSelected && place) {
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (onPlaceSelected) {
           onPlaceSelected(place);
         }
       });
     }
   };
 
-  useEffect(() => {
-    loadScript();
-  }, [apiKey]);
+  const loadScript = () => {
+    window.initAutocomplete = initAutocomplete;
+    const url = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initAutocomplete`;
+    if (!document.querySelector(`script[src="${url}"]`)) {
+      const script = document.createElement("script");
+      script.src = url;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+  };
 
   useEffect(() => {
-    if (inputRef.current && !autocompleteRef.current) {
-      initializeAutocomplete();
-    }
-  }, [initializeAutocomplete]);
+    loadScript();
+
+    return () => {
+      delete window.initAutocomplete;
+    };
+  }, [apiKey]);
 
   return <input ref={inputRef} type="text" {...props} />;
 };

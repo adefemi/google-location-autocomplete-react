@@ -34,13 +34,21 @@ const GoogleLocationAutocomplete: React.FC<GoogleAutocompleteProps> = ({
     }
   };
 
+  const url = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initAutocomplete`;
+
   const loadScript = () => {
     window.initAutocomplete = initAutocomplete;
-    const url = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initAutocomplete`;
+
+    if(window.google && window.google.maps) {
+      initAutocomplete();
+      return;
+    }
+
     if (!document.querySelector(`script[src="${url}"]`)) {
       const script = document.createElement("script");
       script.src = url;
       script.async = true;
+      script.className = "google-location-autocomplete";
       script.defer = true;
       document.head.appendChild(script);
     }
@@ -48,10 +56,6 @@ const GoogleLocationAutocomplete: React.FC<GoogleAutocompleteProps> = ({
 
   useEffect(() => {
     loadScript();
-
-    return () => {
-      delete window.initAutocomplete;
-    };
   }, [apiKey]);
 
   return <input ref={inputRef} type="text" {...props} />;

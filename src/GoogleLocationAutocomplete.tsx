@@ -19,52 +19,42 @@ const GoogleLocationAutocomplete: React.FC<GoogleAutocompleteProps> = ({
   ...props
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  const loadScript = (url: string) => {
+  const loadScript = () => {
+    const url = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     if (!document.querySelector(`script[src="${url}"]`)) {
       const script = document.createElement("script");
       script.src = url;
       script.async = true;
       script.defer = true;
       document.head.appendChild(script);
+      script.onload = () => initializeAutocomplete();
     }
   };
 
-  const initializeAutocomplete = useCallback(() => {
-    if (inputRef.current && window.google) {
-      const autocomplete = new window.google.maps.places.Autocomplete(
+  const initializeAutocomplete = () => {
+    if (inputRef.current && window.google && !autocompleteRef.current) {
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(
         inputRef.current
       );
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        if (onPlaceSelected) {
+      autocompleteRef.current?.addListener("place_changed", () => {
+        const place = autocompleteRef.current?.getPlace();
+        if (onPlaceSelected && place) {
           onPlaceSelected(place);
         }
       });
     }
-  }, [onPlaceSelected]);
+  };
 
   useEffect(() => {
-    window.initAutocomplete = initializeAutocomplete;
-    const url = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initAutocomplete`;
-    loadScript(url);
-
-    return () => {
-      delete window.initAutocomplete;
-    };
-  }, [apiKey, initializeAutocomplete]);
+    loadScript();
+  }, [apiKey]);
 
   useEffect(() => {
-    const handleFocus = () => {
+    if (inputRef.current && !autocompleteRef.current) {
       initializeAutocomplete();
-    };
-
-    const input = inputRef.current;
-    input?.addEventListener("focus", handleFocus);
-
-    return () => {
-      input?.removeEventListener("focus", handleFocus);
-    };
+    }
   }, [initializeAutocomplete]);
 
   return <input ref={inputRef} type="text" {...props} />;
